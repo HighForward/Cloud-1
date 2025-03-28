@@ -1,0 +1,46 @@
+services:
+
+  mysql:
+    container_name: mysql_cloud1
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: cloud1
+      MYSQL_USER: cloud1
+      MYSQL_PASSWORD: cloud1
+      MYSQL_RANDOM_ROOT_PASSWORD: 'root'
+    volumes:
+      - ./mysql:/var/lib/mysql
+
+  wordpress:
+    container_name: wordpress_cloud1
+    image: wordpress:6.7.2-php8.1-apache
+    restart: always
+    depends_on:
+      - mysql
+    ports:
+      - 8080:80
+    environment:
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_USER: cloud1
+      WORDPRESS_DB_PASSWORD: cloud1
+      WORDPRESS_DB_NAME: cloud1
+    volumes:
+      - ./wordpress:/var/www/html
+
+
+  phpmyadmin:
+    container_name: phpmyadmin_cloud1
+    image: phpmyadmin:5.2.2-apache
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: cloud1
+    ports:
+      - "8888:80"
+
+volumes:
+  wordpress:
+  db:
