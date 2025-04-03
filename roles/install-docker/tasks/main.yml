@@ -1,0 +1,64 @@
+---
+- name: install dependencies
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - software-properties-common
+      - python3-pip
+    state: latest
+    update_cache: yes
+
+- name: add GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: add docker repository to apt
+  apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu bionic stable
+
+- name: install docker
+  apt:
+    name:
+      - docker-ce
+    state: latest
+    update_cache: yes
+
+- name: Ajouter l'utilisateur au groupe docker
+  user:
+    name: ubuntu
+    group: docker
+
+
+- name: Démarrer et activer Docker
+  systemd:
+    name: docker
+    state: started
+    enabled: true
+
+
+- name: Télécharger Docker Compose
+  get_url:
+    url: "https://github.com/docker/compose/releases/latest/download/docker-compose-Linux-x86_64"
+    dest: /usr/local/bin/docker-compose
+    mode: 'u+x'
+
+
+- name: Vérifier la version de Docker
+  command: docker --version
+  register: docker_version
+
+- name: Afficher la version de Docker
+  debug:
+    msg: "Version de Docker: {{ docker_version.stdout }}"
+
+- name: Vérifier la version de Docker Compose
+  command: /usr/local/bin/docker-compose --version
+  register: docker_compose_version
+
+- name: Afficher la version de Docker Compose
+  debug:
+    msg: "Version de Docker Compose: {{ docker_compose_version.stdout }}"

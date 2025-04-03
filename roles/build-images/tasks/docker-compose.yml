@@ -1,0 +1,68 @@
+services:
+
+  nginx:
+    container_name: nginx_cloud1
+    build: nginx
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - NGINX_PORT=80
+    networks:
+      - cloud1_network
+
+  mysql:
+    container_name: mysql_cloud1
+    build: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: cloud1
+      MYSQL_USER: cloud1
+      MYSQL_PASSWORD: cloud1
+      MYSQL_RANDOM_ROOT_PASSWORD: 'root'
+    volumes:
+      - ./mysql/volume:/var/lib/mysql
+    networks:
+      - cloud1_network
+
+  wordpress:
+    container_name: wordpress_cloud1
+    image: wordpress:6.7.2-php8.1-apache
+    restart: always
+    depends_on:
+      - mysql
+    ports:
+      - 9000:80
+    environment:
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_USER: cloud1
+      WORDPRESS_DB_PASSWORD: cloud1
+      WORDPRESS_DB_NAME: cloud1
+    volumes:
+      - ./wordpress:/var/www/html
+    networks:
+      - cloud1_network
+
+  phpmyadmin:
+    container_name: phpmyadmin_cloud1
+    image: phpmyadmin:5.2.2-apache
+    restart: always
+    depends_on:
+      - mysql
+    ports:
+      - 8888:80
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: cloud1
+    networks:
+      - cloud1_network
+
+volumes:
+  nginx:
+  mysql:
+  wordpress:
+
+networks:
+  cloud1_network:
+    driver: bridge

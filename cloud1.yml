@@ -1,0 +1,8 @@
+- name: Install Cloud1
+  hosts: all
+  remote_user: ubuntu
+  become: yes
+
+  roles:
+    - install-docker
+    - build-images
