@@ -1,6 +1,6 @@
 locals {
-  keypair_file = "testkey"
-  private_key_path = "./${local.keypair_file}.pem"
+  key_pair_file = "ec2-perm"
+  private_key_path = "./${local.key_pair_file}.pem"
 }
 
 terraform {
@@ -14,11 +14,8 @@ terraform {
 
 provider "aws" {
   region = "eu-west-3"
-  #  access_key = ""
-  #  secret_key = ""
 }
 
-# Create a VPC
 resource "aws_vpc" "cloud1" {
   cidr_block = "10.0.0.0/24"
 }
@@ -92,7 +89,7 @@ resource "aws_instance" "cloud1_instance" {
   subnet_id = aws_subnet.cloud1_subnet_public.id
   associate_public_ip_address = true
   security_groups = [aws_security_group.cloud1_security_group.id]
-  key_name = local.keypair_file
+  key_name = local.key_pair_file
 
   provisioner "remote-exec" {
     inline = ["echo 'Wait until ssh is ready'"]
