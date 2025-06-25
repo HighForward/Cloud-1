@@ -1,5 +1,6 @@
 locals {
-  private_key_path = "./ec2-rsa-pem.pem"
+  keypair_file = "testkey"
+  private_key_path = "./${local.keypair_file}.pem"
 }
 
 terraform {
@@ -14,7 +15,7 @@ terraform {
 provider "aws" {
   region = "eu-west-3"
   #  access_key = ""
-  #  secret_key = "
+  #  secret_key = ""
 }
 
 # Create a VPC
@@ -91,7 +92,7 @@ resource "aws_instance" "cloud1_instance" {
   subnet_id = aws_subnet.cloud1_subnet_public.id
   associate_public_ip_address = true
   security_groups = [aws_security_group.cloud1_security_group.id]
-  key_name = "ec2-rsa-pem"
+  key_name = local.keypair_file
 
   provisioner "remote-exec" {
     inline = ["echo 'Wait until ssh is ready'"]
@@ -104,9 +105,7 @@ resource "aws_instance" "cloud1_instance" {
     }
   }
 
-#  provisioner "local-exec" {
-#    command = "ansible-playbook -i ${aws_instance.cloud1_instance.public_ip}, --private-key ${local.private_key_path} cloud1.yml"
-#  }
+
 }
 
 resource "null_resource" "ansible_playbook" {

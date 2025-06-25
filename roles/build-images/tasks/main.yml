@@ -10,7 +10,6 @@
     dest: ./cloud1
     mode: '0644'
 
-
 - name: Synchronization of src on the control machine to dest on the remote hosts
   ansible.posix.synchronize:
     src: ./wordpress
@@ -26,22 +25,19 @@
     src: ./nginx
     dest: ./cloud1
 
+- name: Recursively change ownership of a directory
+  ansible.builtin.file:
+    path: ./cloud1/wordpress/wp-content
+    owner: www-data
+    group: www-data
+    mode: '0775'
+    recurse: yes
+
 - name: Replace part of the line (substring) in the configuration file
   replace:
     path: ./cloud1/mysql/cloud1.sql
     regexp: "__cloud1_ec2_ip__"
     replace: "https://{{ cloud1_ec2_ip }}"
-
-#name: Update WordPress site URL in MySQL (inside Docker)
-#  community.mysql.mysql_query:
-#    login_host: "mysql_cloud1"  # Nom du container MySQL
-#    login_user: "root"
-#    login_password: "root"
-#    login_db: "wordpress_db"
-#    query:
-#      - "UPDATE wp_options SET option_value = 'https://{{ cloud1_ec2_ip }}' WHERE option_name = 'siteurl';"
-#      - "UPDATE wp_options SET option_value = 'https://{{ cloud1_ec2_ip }}' WHERE option_name = 'home';"
-
 
 - name: create and start services
   community.docker.docker_compose_v2:
